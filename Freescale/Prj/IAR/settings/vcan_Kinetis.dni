@@ -1,0 +1,56 @@
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[DebugChecksum]
+Checksum=636097942
+[Exceptions]
+StopOnUncaught=_ 0
+StopOnThrow=_ 0
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[JLinkDriver]
+CStepIntDis=_ 0
+TraceBufferSize=0x00010000
+TraceStallIfFIFOFull=0x00000000
+TracePortSize=0x00000004
+[CodeCoverage]
+Enabled=_ 0
+[Breakpoints]
+Count=0
+[array_types]
+Fmt0=uint8[12]	4	0
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Count=0
+[Aliases]
+A0=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c"
+A1=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\startup_MK60DZ10.s" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\startup_MK60DZ10.s"
+A2=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\system_MK60DZ10.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\system_MK60DZ10.c"
+A3=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\MK60_uart.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\MK60_uart.c"
+Count=4
+SuppressDialog=1
