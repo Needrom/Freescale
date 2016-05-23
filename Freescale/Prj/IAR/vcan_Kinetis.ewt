@@ -365,6 +365,9 @@
   <group>
     <name>Board</name>
     <file>
+      <name>$PROJ_DIR$\..\..\Board\src\calculate.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\Board\src\LDC1000.c</name>
     </file>
     <file>

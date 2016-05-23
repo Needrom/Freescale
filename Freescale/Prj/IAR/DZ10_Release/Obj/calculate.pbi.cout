@@ -1,4 +1,4 @@
-"C:\Users\¹úÓî\Desktop\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë_ÐÂ\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë\Board\src\LDC1000.c"
+"C:\Users\¹úÓî\Desktop\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë_ÐÂ\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë\Board\src\calculate.c"
 -std=c99
 -ferror-limit=100
 -I
@@ -238,7 +238,7 @@ C:\Users\¹úÓî\Desktop\¸¡µã¿Æ¼¼µç¹ì×é½ðÊô´«¸ÐÆ÷Ä£¿éK60Çý¶¯´úÂë_ÐÂ\¸¡µã¿Æ¼¼µç¹ì×é½
 -D__IAR_COMPILERBASE__=593924
 -D__SIGNED_CHARS__=1
 -D__DATE__="May 23 2016"
--D__TIME__="12:11:34"
+-D__TIME__="12:09:40"
 -D__STDC__=1
 -D__STDC_VERSION__=199901L
 -D__STDC_HOSTED__=1

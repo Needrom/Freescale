@@ -6,6 +6,7 @@
 #include "MK60_FTM.h"
 #include "MK60_PIT.h"
 #include "LDC1000.H"
+#include "calculate.h"
 
 /////////////////////////变量定义//////////////////////////
 //FLAG
@@ -59,14 +60,17 @@ int caculate_steering_value;
 int middle_steering_value;
 int fg;
 int kd_steering;
-
+int Data_average;
 
   extern uint8  proximtyData[2];
   uint8  freqData[2];
   uint16 freqData_Sum;
   uint8  LDC_Val_Compar_For_Mid;
+  
+//拨码开关
   uint8 MODE;
-
+  uint8 MODE2;
+  
   extern uint8 orgVal[12];
   //uint8 thr_data[2];
   //volatile uint32 irqflag=0;
@@ -300,7 +304,8 @@ void Steering_Change()
 
 void Device_init()
 {       
-        gpio_init(PTD2,GPI,1);
+        gpio_init(PTC15,GPI,1);                                         //拨码开关第二位
+        gpio_init(PTD2,GPI,1);                                          //拨码开关第一位
         gpio_init(PTD1,GPO,1);						//三个指示灯依次亮起
         gpio_init(PTD3,GPO,1);
         gpio_init(PTD4,GPO,1);						//每进入一次初始化PTD4灯灭，初始化完成亮起
@@ -321,6 +326,7 @@ void TEST_mode()
 {  
  
   MODE = gpio_get(PTD2);
+  MODE2 = gpio_get(PTC15);
 
 }
 
@@ -331,7 +337,7 @@ void main(void)
         systick_delay_ms(100);
         FLOAT_LDC_init(SPI0);
         systick_delay_ms(4000);
-        //uart_init(UART3,115200);
+        uart_init(UART3,115200);
 #if LDC_EVM_TEST_EN
      
      evm_test(SPI1); 
@@ -355,6 +361,17 @@ void main(void)
                 printf("%d\r\n",LDC_result);
                 Steering_Change();
                 systick_delay_ms(30);
+                
+//                if(MODE2)
+//                {
+//                Data_average = average(LDC_SPI0_val);
+//                if(Data_average) printf("Data0_average is :%d\r\n",Data_average);
+//                }
+//                else
+//                {
+//                Data_average = average(LDC_SPI1_val);
+//                if(Data_average) printf("Data1_average is :%d\r\n",Data_average);
+//                }
              }
              else
              {

@@ -14,7 +14,7 @@
 #define TEST_RPMAX_MIN 0x00             //10
 #define TEST_RPMAX_MAX 0x1F             //13
 #define uchar uint8 
-#define NN  20
+#define NN  50
 
 uint8 orgVal[12]={0};
 
