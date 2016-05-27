@@ -144,19 +144,7 @@ void Steering_init()
 	FTM_PWM_init(FTM1,FTM_CH0,50,0);
 
 #if SteeringTest_EN
-	
-	int duty;
-	int dutyMax = 100;
-	
-	printf("Steering TEST start in 3 second");
-	FLOAT_delay_us(3000);
-	
-	for (int duty = 10; duty < dutyMax; ++duty)
-	{
-		FTM_PWM_Duty(FTM1,FTM_CH0,duty*1000);
-		printf("%d \r\n", duty);
-		FLOAT_delay_us(30);
-	}
+
 #endif
         gpio_set(PTD4,1);
 }
@@ -167,41 +155,11 @@ void Steering_init()
 void Motor_init()
 {
     gpio_set(PTD4,0);
-        FTM_PWM_init(FTM0,FTM_CH1,10000,75000);
-	FTM_PWM_init(FTM0,FTM_CH2,10000,75000);
-        FTM_PWM_Duty(FTM0,FTM_CH1,75000);
+        FTM_PWM_init(FTM0,FTM_CH1,10000,20000);
+	FTM_PWM_init(FTM0,FTM_CH2,10000,20000);
+       // FTM_PWM_Duty(FTM0,FTM_CH1,75000);
 #if MotorTest_EN
-	
-        FTM_QUAD_Init(FTM2);
         
-        int dutyCatch;
-	int duty;
-	int dutyMax = 100;
-	
-	printf("Motor TEST start in 3 second \r\n");
-	systick_delay_ms(3000);
-	
-	printf("Pwm1 START \r\n");
-	for (int duty = 10; duty < 50; ++duty)						//pwm1百分十到百分百测试
-	{
-		FTM_PWM_Duty(FTM0,FTM_CH1,duty*1000);
-                dutyCatch = FTM_QUAD_get(FTM2);
-		printf("%d \r\n", duty);
-		FLOAT_delay_us(30);
-	}
-
-	FTM_PWM_Duty(FTM1,FTM_CH0,0);									//pwm1归零
-
-	printf("Pwm2 START \r\n");
-
-	for (int duty = 10; duty < dutyMax; ++duty)
-	{
-		FTM_PWM_Duty(FTM0,FTM_CH2,duty*1000);
-		printf("%d \r\n", duty);
-		FLOAT_delay_us(30);
-	}
-
-	FTM_PWM_Duty(FTM0,FTM_CH2,0);
 #endif
         gpio_set(PTD4,1);
 }
@@ -267,26 +225,6 @@ void Steering_Change()
     caculate_steering_value = (p_steering_value + d_steering_value);
     second_steering_error = frist_steering_error;
      
-//    if(fg == 3)
-//    {
-//            if(LDC_result == 0)
-//            caculate_steering_value = STEERING_MAX;
-//            else
-//            caculate_steering_value = STEERING_MIN;	
-//            fg = 0;
-//    }
-//      if(fg == 2)		left
-//    {
-//            caculate_steering_value = 3425 - ad_resultk;	//2275
-//            fg = 0;
-//            d_flag = 1;
-//    }
-//     if(fg == 1)		right
-//    {
-//            caculate_steering_value = 2275 + ad_resultk;	//3425
-//            fg = 0;
-//            d_flag = 1;	
-//    }
     LDC_result = caculate_steering_value/600;
     if(LDC_result >= STEERING_ANGLE_MAX)
      {
@@ -344,14 +282,14 @@ void main(void)
      
      evm_test(SPI0);    
 #endif     
-//     EnableInterrupts;
+
 	while(1)
 	{
              TEST_mode();
              if(MODE)
              {
                 LDC_SPI0_val = filter(SPI0);
-                systick_delay_ms(60);
+                systick_delay_ms(0);
                 LDC_SPI1_val = filter(SPI1);
                 printf("ldc0_val");
                 printf("%d   \t",LDC_SPI0_val);
@@ -360,18 +298,7 @@ void main(void)
                 LDC_result = LDC_SPI0_val-LDC_SPI1_val;
                 printf("%d\r\n",LDC_result);
                 Steering_Change();
-                systick_delay_ms(30);
-                
-//                if(MODE2)
-//                {
-//                Data_average = average(LDC_SPI0_val);
-//                if(Data_average) printf("Data0_average is :%d\r\n",Data_average);
-//                }
-//                else
-//                {
-//                Data_average = average(LDC_SPI1_val);
-//                if(Data_average) printf("Data1_average is :%d\r\n",Data_average);
-//                }
+                systick_delay_ms(0);
              }
              else
              {
@@ -397,7 +324,7 @@ void main(void)
                       gpio_turn(PTD4);
                       PIT_1sFlag = 0;
 		}
-                //printf("Runing");
+     
 	}
 }
 
