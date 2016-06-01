@@ -37,10 +37,6 @@ volatile int PIT_steeringFlag;
 int PIT_steeringCount = 0;
 
 
-//PIN_DEFINE
-#define LED_PIN PTD4							//led引脚
-#define STOP_CATCH_PIN 							//停止flag捕获
-
 //LDC_val采样值
 extern uint8 orgVal[12];
 extern int  LDC_val;
@@ -50,7 +46,6 @@ int  LDC_result;
 int frist_steering_error;
 int p_steering_value;
 int expectation_steering_value = 1041;
-int p_steering_value;
 int kp_steering = 1;
 int d_flag;
 int d_steering_value;
@@ -58,14 +53,12 @@ int second_steering_error;
 int kd_steering_value;
 int caculate_steering_value;
 int middle_steering_value;
-int fg;
 int kd_steering;
-int Data_average;
+int LDC_ca;
 
-  extern uint8  proximtyData[2];
-  uint8  freqData[2];
-  uint16 freqData_Sum;
-  uint8  LDC_Val_Compar_For_Mid;
+//Motor_pid初始值
+int p = 0.3,i = 0,d = 0.0001;
+int AimSpeed = 50000,LastErr,PreErr,next;
   
 //拨码开关
   uint8 MODE;
@@ -79,23 +72,17 @@ int Data_average;
 //ENABLE_SET
 #define STEERING_CHANGE_TEST_EN 0
 #define LDC_INTB_EN 0                           //INTB模式
-#define LDC_EVM_TEST_EN 1                       //是否开启test
+#define LDC_EVM_TEST_EN 0                       //是否开启test
 #define PIT_EN 1
 #define TESTSPACE_EN 1 							//是否开启测试区域，开启则工作区域关闭
 #define SteeringTest_EN 0
 #define MotorTest_EN 0
 #define EncodeTest_EN 0
-#define LDC100_Data_RECALL_TEST_EN 0 
-#define LDC100_Reg_RECALL_TEST_EN 1 
-  
+
 //STEERING
 #define STEERING_MID -22000
 #define STEERING_MAX 25000
 #define STEERING_MIN 1
-#define STEERING_FTM_N  NULL
-#define STEERING_FTM_CHN    NULL
-#define STEERING_FREQUENCY      NULL
-#define STEERING_DUTY   NULL
 #define STEERING_ANGLE_MAX 22
 #define STEERING_ANGLE_MIN -26
   
@@ -104,6 +91,7 @@ int Data_average;
 #define MOTOR_FTM_CHN FTM_CH2
 #define MOTOR_FREQUENCY 10000
 #define MOTOR_DUTY 50000
+#define SET_MAX 50000
   
 ////////////////////////////////////////////////////////////
 void FTM0_INPUT_IRQHandler(void);
@@ -119,12 +107,34 @@ uint32 angle_to_period(int8 deg);
 void delay(uint16 n);
 void Steering_Change();
 void Motor_stop();
+void Motor_PID_init();
+void Motor_PID();
+
+int Encode_get()
+{
+  int Encode_count;
+  Encode_count = FTM_QUAD_get(FTM2);
+  return Encode_count;
+}
+
+
+void Motor_PID(void)
+{
+  int tiffer,iErr;
+  next = Encode_get();
+  //if(iErr - LastErr <= -1 || iErr - PreErr >= 1) return next;
+  iErr = AimSpeed - next;
+  tiffer = p * iErr - i * LastErr + d * PreErr;
+  PreErr = LastErr;
+  LastErr = iErr;
+  if(tiffer >= SET_MAX) tiffer = SET_MAX;
+  FTM_PWM_Duty(FTM0,FTM_CH2,tiffer);
+}
 
 void Motor_stop()
 {
 	FTM_PWM_Duty(FTM0,FTM_CH2,0);
 	FTM_PWM_Duty(FTM0,FTM_CH1,0);
-
 }
 
 void FLOAT_delay_us(int ms)//为防止time_delay_ms();与lpt冲突编写的延时
@@ -142,7 +152,6 @@ void Steering_init()
 {
         gpio_set(PTD4,0);
 	FTM_PWM_init(FTM1,FTM_CH0,50,0);
-
 #if SteeringTest_EN
 
 #endif
@@ -169,6 +178,7 @@ void Encode_init()													//编码器
         gpio_set(PTD4,0);
 	FTM_PWM_init(FTM2,FTM_CH0,3000000,75000);
 	FTM_PWM_init(FTM2,FTM_CH1,3000000,75000);
+        FTM_QUAD_Init(FTM2);
 #if EncodeTest_EN
 
 #endif
@@ -205,7 +215,7 @@ void Steering_Change()
 		delay(100);
 	}
 #else
-    LDC_result = filter(SPI0) - filter(SPI1);
+    LDC_result = filter(SPI1)*1.1 - filter(SPI0)-LDC_ca;
 
     frist_steering_error = expectation_steering_value - LDC_result;	
 
@@ -225,7 +235,7 @@ void Steering_Change()
     caculate_steering_value = (p_steering_value + d_steering_value);
     second_steering_error = frist_steering_error;
      
-    LDC_result = caculate_steering_value/600;
+    LDC_result = caculate_steering_value/200 - 5;
     if(LDC_result >= STEERING_ANGLE_MAX)
      {
                     LDC_result = STEERING_ANGLE_MAX;
@@ -237,6 +247,7 @@ void Steering_Change()
     
     FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result));
     printf("angle :%d\r\n",LDC_result);
+    printf("angle :%d\r\n",caculate_steering_value);
 #endif	
 }
 
@@ -280,9 +291,13 @@ void main(void)
      
      evm_test(SPI1); 
      
-     evm_test(SPI0);    
+     evm_test(SPI0);  
+     
+     
 #endif     
-
+     LDC_ca = filter(SPI1) - filter(SPI0);
+     LDC_ca = filter(SPI1) - filter(SPI0);
+     LDC_ca = filter(SPI1) - filter(SPI0);
 	while(1)
 	{
              TEST_mode();

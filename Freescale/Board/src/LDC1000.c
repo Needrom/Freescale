@@ -14,12 +14,12 @@
 #define TEST_RPMAX_MIN 0x00             //10
 #define TEST_RPMAX_MAX 0x1F             //13
 #define uchar uint8 
-#define NN  50
+#define NN  40
 
 uint8 orgVal[12]={0}; 
 
 uint8 RPMAX =0x0D;                      //TI 14 
-uint8 RPMIN =0x31;                      //TI 3B
+uint8 RPMIN =0x30;                      //TI 3B
 uint8 rpi_max=10;
 uint8 proximtyData[3]={0};
 unsigned long proximtyDataTEMP=0,proximtyDataMAX,proximtyDataMIN,proximtyDataSUM,proximtyDataAVE,proximtyDataAVE_LAS;
@@ -160,8 +160,6 @@ long int filter(SPIn_e SPIn)
          }
       }
    }
-   
-   linearSmooth7(new_value_buf,linearSmooth_buf,count2);
 
    for(count=1;count<count2-1;count++)
    {
@@ -169,7 +167,7 @@ long int filter(SPIn_e SPIn)
    }
   
      
-   return (long int)(sum/(count2-2));
+   return (long int)(sum/(count2-2)*0.9);
 
 
 }
