@@ -55,6 +55,10 @@ int caculate_steering_value;
 int middle_steering_value;
 int kd_steering;
 int LDC_ca;
+int adjustment[10] = {0,0,0,0,0,0,0,0,0,0};
+int flag = 0,flag1 = 0;
+int LDC_val_pre;
+int LDC_val1_pre;
 
 //Motor_pid初始值
 int p = 0.3,i = 0,d = 0.0001;
@@ -109,6 +113,7 @@ void Steering_Change();
 void Motor_stop();
 void Motor_PID_init();
 void Motor_PID();
+int Encode_get();
 
 int Encode_get()
 {
@@ -145,46 +150,6 @@ void FLOAT_delay_us(int ms)//为防止time_delay_ms();与lpt冲突编写的延时
     for(k_1=0;k_1<8;k_1++);
 }
 
-/* 
-舵机初始化，从百分之十占空比到百分之七十占空比测试
- */
-void Steering_init()							
-{
-        gpio_set(PTD4,0);
-	FTM_PWM_init(FTM1,FTM_CH0,50,0);
-#if SteeringTest_EN
-
-#endif
-        gpio_set(PTD4,1);
-}
-
-
-
-
-void Motor_init()
-{
-    gpio_set(PTD4,0);
-        FTM_PWM_init(FTM0,FTM_CH1,10000,20000);
-	FTM_PWM_init(FTM0,FTM_CH2,10000,20000);
-       // FTM_PWM_Duty(FTM0,FTM_CH1,75000);
-#if MotorTest_EN
-        
-#endif
-        gpio_set(PTD4,1);
-}
-
-void Encode_init()													//编码器
-{
-        gpio_set(PTD4,0);
-	FTM_PWM_init(FTM2,FTM_CH0,3000000,75000);
-	FTM_PWM_init(FTM2,FTM_CH1,3000000,75000);
-        FTM_QUAD_Init(FTM2);
-#if EncodeTest_EN
-
-#endif
-        gpio_set(PTD4,1);
-}
-
 void PIT_init()											
 {
     
@@ -201,6 +166,62 @@ void PIT_init()
 void Steering_Change()
 {
   int i;
+  
+  if(flag)//右比左边大
+    
+ {
+  LDC_SPI1_val=LDC_SPI1_val+adjustment[0];//左
+  if( LDC_SPI1_val<=((adjustment[8]+adjustment[0])-5)&&(LDC_val_pre-LDC_SPI0_val>8))//在左边丢线
+  //gpio_set (PTA17, 0);
+    ;
+    
+  else
+    
+ // gpio_set (PTA17, 1);  
+    ;
+  
+  if( LDC_val<=(adjustment[7]-5)&&(LDC_val1_pre-LDC_SPI1_val>8))//在右边丢线
+ // gpio_set (PTA17, 0);
+    ;
+    
+  else
+   
+  //gpio_set (PTA17, 1);
+    ;
+  
+ }
+ else if(flag1)//左比右边大
+{
+  LDC_SPI0_val=LDC_SPI0_val+adjustment[0];//右
+  
+  if( LDC_SPI0_val<=((adjustment[7]+adjustment[0])-5)&&(LDC_val1_pre-LDC_SPI1_val>8))//在右边丢线
+  //gpio_set (PTA17, 0);
+    ;
+    
+  else
+ // gpio_set (PTA17, 1);
+    ;
+    
+  if( LDC_SPI1_val<=(adjustment[8]-5)&&(LDC_val_pre-LDC_SPI0_val>8))//在左边丢线
+  { 
+
+    
+  }
+  else
+  //gpio_set (PTA17, 1); 
+    ;
+    
+ }
+ LCD_BL(85,6,(uint16)LDC_SPI0_val);
+ LCD_BL(3,6,(uint16)LDC_SPI1_val); 
+      
+  
+   if(LDC_SPI0_val<adjustment[5]+5)LDC_SPI0_val=adjustment[5]+5;//右
+   else if(LDC_SPI0_val>adjustment[6]-5)LDC_SPI0_val=adjustment[6]-5;//
+   
+   if(LDC_SPI1_val<adjustment[5]+5)LDC_SPI1_val=adjustment[5]+5;//左
+   else if(LDC_SPI1_val>adjustment[6]-5)LDC_SPI1_val=adjustment[6]-5;
+   
 #if STEERING_CHANGE_TEST_EN
         
 //         FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(45));
@@ -248,6 +269,10 @@ void Steering_Change()
     FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result));
     printf("angle :%d\r\n",LDC_result);
     printf("angle :%d\r\n",caculate_steering_value);
+    
+    LDC_val_pre=LDC_SPI0_val;
+    LDC_val1_pre=LDC_SPI1_val;
+
 #endif	
 }
 
@@ -258,11 +283,18 @@ void Device_init()
         gpio_init(PTD1,GPO,1);						//三个指示灯依次亮起
         gpio_init(PTD3,GPO,1);
         gpio_init(PTD4,GPO,1);						//每进入一次初始化PTD4灯灭，初始化完成亮起
-	Steering_init();
-	Motor_init();
-	Encode_init();
+
+	FTM_PWM_init(FTM1,FTM_CH0,50,0);				//舵机初始化，从百分之十占空比到百分之七十占空比测试
+	
+	FTM_PWM_init(FTM0,FTM_CH1,10000,20000);			//电机pwm初始化
+	FTM_PWM_init(FTM0,FTM_CH2,10000,20000);
+	
+	FTM_PWM_init(FTM2,FTM_CH0,3000000,75000);		//编码器初始化
+	FTM_PWM_init(FTM2,FTM_CH1,3000000,75000);
+    FTM_QUAD_Init(FTM2);							//初始化为正交解码
+	
 	PIT_init();
-        gpio_set(PTD4,1);
+    gpio_set(PTD4,1);
 }
 
 uint32 angle_to_period(int8 deg)
@@ -281,6 +313,8 @@ void TEST_mode()
 
 void main(void)
 {
+	int i1=0;
+	
 	Device_init();
         FLOAT_LDC_init(SPI1);
         systick_delay_ms(100);
@@ -295,17 +329,81 @@ void main(void)
      
      
 #endif     
-     LDC_ca = filter(SPI1) - filter(SPI0);
-     LDC_ca = filter(SPI1) - filter(SPI0);
-     LDC_ca = filter(SPI1) - filter(SPI0);
+	i1 = 100;
+     while(i1--)
+     {
+      adjustment[7]=filter(SPI0)/10;//右
+      adjustment[8]=filter(SPI1)/10;//左
+     }
+	 
+	  if(adjustment[7]>=adjustment[8])
+     { flag=1;
+     adjustment[0]=adjustment[7]-adjustment[8];
+     }
+     else
+     {
+       flag1=1;
+     adjustment[0]=adjustment[8]-adjustment[7]; 
+     }
+     
+     
+     
+     
+     
+      
+      LCD_P6x8Str(0,2,"Rmax Lmin");
+	  systick_delay_ms(3000);
+      i1=100;
+      while(i1--)
+     {
+         adjustment[2]=filter(SPI0)/10;//右max
+
+     
+     }
+      i1=100;
+      while(i1--)
+     {
+        adjustment[1]=filter(SPI1)/10;//左min
+     }
+     LCD_BL(55,2,(uint16)adjustment[1]);
+     LCD_BL(90,2,(uint16)adjustment[2]);
+  
+
+  
+      LCD_P6x8Str(0,4,"Lmax Rmin");
+      systick_delay_ms(3000);
+      i1=100;
+      while(i1--)
+     {
+      adjustment[3]=filter(SPI0)/10;//右min
+     }
+      i1=100;
+      while(i1--)
+     {
+      adjustment[4]=filter(SPI1)/10;//左max
+     }
+     LCD_BL(55,4,(uint16)adjustment[4]);
+     LCD_BL(90,4,(uint16)adjustment[3]);
+     
+     if(adjustment[1]<=adjustment[3])
+       adjustment[5]=adjustment[1];//次小值
+     else
+       adjustment[5]=adjustment[3];//次小值
+     
+     if(adjustment[2]>=adjustment[4])
+       adjustment[6]=adjustment[2];//次大值
+     else
+       adjustment[6]=adjustment[4];//次大值
+     
+
 	while(1)
 	{
              TEST_mode();
              if(MODE)
              {
-                LDC_SPI0_val = filter(SPI0);
+                LDC_SPI0_val = filter(SPI0)/10;
                 systick_delay_ms(0);
-                LDC_SPI1_val = filter(SPI1);
+                LDC_SPI1_val = filter(SPI1)/10;
                 printf("ldc0_val");
                 printf("%d   \t",LDC_SPI0_val);
                 printf("ldc1_val");
