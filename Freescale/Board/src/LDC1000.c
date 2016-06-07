@@ -6,7 +6,7 @@
 #include "MK60_uart.h"
 
 #define TEST_RP_MSB_MIN 0x0A            //0A
-#define TEST_RP_MSB_MAX 0X20            //12
+#define TEST_RP_MSB_MAX 0X12            //12 //20
 #define TEST_FC_MAX 0x0D5D
 #define TEST_FC_MIN 0x0D39
 #define TEST_RPMIN_MIN 0x2E             //3A
@@ -15,6 +15,10 @@
 #define TEST_RPMAX_MAX 0x1F             //13
 #define uchar uint8 
 #define NN  40
+
+unsigned char posi = 0;
+
+LDC_ParameterPtr LDC_buff[50];
 
 uint8 orgVal[12]={0}; 
 
@@ -64,6 +68,7 @@ void FLOAT_LDC_init(SPIn_e SPIn)
         
   
 } 
+
 
 int ldc_read_avr(SPIn_e SPIn)
 {
@@ -382,6 +387,48 @@ void FLOAT_SPI_Read_Buf(uchar reg, uchar *pBuf, uchar len,SPIn_e SPIn)
 //    
 //}
 
+
+void Set_reg(SPIn_e SPIn)
+{
+  FLOAT_Singal_SPI_Write(LDC1000_CMD_RPMAX,LDC_buff[0]->RPMAX,SPIn);
+  FLOAT_Singal_SPI_Write(LDC1000_CMD_RPMIN,LDC_buff[0]->RPMIN,SPIn);
+}
+
+void Save_the_set(SPIn_e SPIn)
+{
+  LDC_ParameterPtr temp;
+   FLOAT_SPI_Read_Buf(LDC1000_CMD_REVID,&orgVal[0],12,SPIn);
+   LDC_buff[posi]->RPMAX      = orgVal[1];
+   LDC_buff[posi]->RPMIN      = orgVal[2];
+   LDC_buff[posi]->PROXfreq   = filter(SPIn);
+   LDC_buff[posi]->RP_NOSIE   = RP_test_noise(SPIn);
+   
+   posi++;
+   
+   if(posi)
+   {
+     for(int i=0;i<posi-1;i++)
+      for(int j=0;j<posi-i;j++)
+      {
+        if(LDC_buff[j]->RP_NOSIE>LDC_buff[j+1]->RP_NOSIE)
+        {
+            temp = LDC_buff[j];
+            LDC_buff[j] = LDC_buff[j+1];
+            LDC_buff[j+1] = temp;
+        }
+      }
+   }
+}
+
+void Reset_buff()
+{
+  for(int i=0;i<50;i++)
+  {
+    LDC_buff[i] = 0;
+  }
+  posi = 0;
+}
+
 int RP_test_noise(SPIn_e SPIn)
 {
 
@@ -457,7 +504,8 @@ uint8 evm_test(SPIn_e SPIn) {
 	for (i = TEST_RPMIN_MIN; i <= TEST_RPMIN_MAX; i++) {
 		for (j = TEST_RPMAX_MIN; j <= TEST_RPMAX_MAX; j++) {
 			if (!test_flag && RP_test_noise(SPIn) < 50) {
-				break;
+                          //Save_the_set(SPIn);        
+                          break; 
 			}
 			else {
                                 printf("%d \r\n",filter(SPIn));

@@ -50,6 +50,18 @@
 #define LDC1000_SPI1_CSB_PIN PTC0
 #define LDC1000_SPI1_CLK_PIN PTA15
 
+
+
+
+///////////////////////////////////////////LDC测试参数
+typedef struct LDC_Parameter
+{
+	int RPMAX;
+	int RPMIN;
+	int PROXfreq;
+	int RP_NOSIE;
+}volatile *LDC_ParameterPtr;
+
 /**********************************************************SPI 管脚定义*******************************************************/
 /***************经测试各家核心板IO驱动能力有区别建议大家不要使用下面注释掉的方式，使用gpio_get（）方式数据会更稳定************/
 
@@ -91,7 +103,8 @@ uchar FLOAT_SPI_RW(uchar rwdata);
 uchar FLOAT_Singal_SPI_Read(uchar reg,SPIn_e SPIn);
 void FLOAT_Singal_SPI_Write(uchar reg,uchar wdata,SPIn_e SPIn);
 void FLOAT_SPI_Read_Buf(uchar reg, uchar *pBuf, uchar len,SPIn_e SPIn);
-
+int RP_test_noise(SPIn_e SPIn);
+void Save_the_set(SPIn_e SPIn);
 
 
 
