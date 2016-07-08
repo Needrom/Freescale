@@ -41,7 +41,7 @@ typedef enum
     KEY_START,  //¿ªÊ¼
     KEY_STOP,   //Í£Ö¹
 
-    KEY_MAX,
+    KEY_MAX = 2,
 } KEY_e;
 
 

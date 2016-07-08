@@ -5,16 +5,16 @@
 #include "MK60_spi.h"
 #include "MK60_uart.h"
 
-#define TEST_RP_MSB_MIN 0x0A            //0A
-#define TEST_RP_MSB_MAX 0X12            //12 //20
+#define TEST_RP_MSB_MIN 0x07            //0A   //07
+#define TEST_RP_MSB_MAX 0x08            //12 //08
 #define TEST_FC_MAX 0x0D5D
 #define TEST_FC_MIN 0x0D39
-#define TEST_RPMIN_MIN 0x2E             //3A
+#define TEST_RPMIN_MIN 0x34             //3A
 #define TEST_RPMIN_MAX 0x3F             //3D
 #define TEST_RPMAX_MIN 0x00             //10
 #define TEST_RPMAX_MAX 0x1F             //13
 #define uchar uint8 
-#define NN  40
+#define NN  20
 
 unsigned char posi = 0;
 
@@ -22,8 +22,8 @@ LDC_ParameterPtr LDC_buff[50];
 
 uint8 orgVal[12]={0}; 
 
-uint8 RPMAX =0x0D;                      //TI 14 
-uint8 RPMIN =0x30;                      //TI 3B
+uint8 RPMAX =0x07;                      //TI 14 
+uint8 RPMIN =0x2F;                      //TI 3B
 uint8 rpi_max=10;
 uint8 proximtyData[3]={0};
 unsigned long proximtyDataTEMP=0,proximtyDataMAX,proximtyDataMIN,proximtyDataSUM,proximtyDataAVE,proximtyDataAVE_LAS;
@@ -433,12 +433,16 @@ int RP_test_noise(SPIn_e SPIn)
 {
 
     char rpi=0;  //取rpi次平均值    
+    char pre_error;
+    FLOAT_SPI_Read_Buf(LDC1000_CMD_PROXLSB,&proximtyData[0],2,SPIn);  
+      pre_error = ((unsigned char)proximtyData[1]); 
     for (rpi=0;rpi<rpi_max;rpi++)
     {
 
       FLOAT_SPI_Read_Buf(LDC1000_CMD_PROXLSB,&proximtyData[0],2,SPIn);  
       proximtyDataTEMP = ((unsigned char)proximtyData[1]); 
-      proximtyDataSUM += proximtyDataTEMP;
+      proximtyDataSUM += proximtyDataTEMP - pre_error;
+      pre_error = proximtyDataTEMP;
       if (proximtyDataTEMP < proximtyDataMIN)   //在100个proximtyDataTEMP中取最大，最小
         proximtyDataMIN = proximtyDataTEMP;
       if (proximtyDataTEMP > proximtyDataMAX)
@@ -498,17 +502,19 @@ uint8 evm_test(SPIn_e SPIn) {
 //    FLOAT_delay_us(2500); // need this many cycles to settle
 //    FLOAT_delay_us(2500); // need this many cycles to settle
     // test the default params
-    test_flag = evm_Test_Rp_Sample(&t_buf[0],SPIn);
 	// Rpmin & Rpmax tuning
 	// if Rp data MSB is out of range, reprogram
 	for (i = TEST_RPMIN_MIN; i <= TEST_RPMIN_MAX; i++) {
 		for (j = TEST_RPMAX_MIN; j <= TEST_RPMAX_MAX; j++) {
-			if (!test_flag && RP_test_noise(SPIn) < 50) {
+                        test_flag = evm_Test_Rp_Sample(&t_buf[0],SPIn);
+			if (!test_flag && RP_test_noise(SPIn) < 20) {
                           //Save_the_set(SPIn);        
                           break; 
 			}
 			else {
+                                LCD_Fill(0x00);
                                 printf("%d \r\n",filter(SPIn));
+                                LCD_BL(0,0,(uint16)filter(SPIn));
                                 systick_delay_ms(50);
 				FLOAT_Singal_SPI_Write(LDC1000_CMD_PWRCONFIG,0x00,SPIn);
 				FLOAT_Singal_SPI_Write(LDC1000_CMD_RPMAX,j,SPIn);

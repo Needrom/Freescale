@@ -1,0 +1,124 @@
+void Steering_Change()
+{
+	if(flag)				//右大     
+	{
+		LDC_SPI0_val = LDC_SPI0_val + adjustment[0];
+			switch(state)
+		{
+			case 0:if (LDC_SPI0_val > adjustment[5] && LDC_SPI1_val > adjustment[5])  //普通
+			{
+				break;
+			}
+			else state++;
+			break;
+
+			case 1:if(LDC_SPI0_val <= adjustment[5])                                  //打死准备
+			{
+                                if(LDC_SPI0_val < 70 && LDC_SPI1_val > 300) dasi_flag = 1;          //向右打死flag;
+                                if(LDC_SPI0_val < 70 && LDC_SPI1_val < 10 && dasi_flag == 1) LDC_SPI1_val = adjustment[6];
+                                if(LDC_SPI0_pre > LDC_SPI0_val)
+                                {
+                                  state = 2;
+                                }
+			}
+			else if(LDC_SPI1_val <= adjustment[5])                                    
+			{
+                                if(LDC_SPI1_pre > LDC_SPI1_val)
+                                {
+                                  state = 3;
+                                }
+			}
+			else
+			{
+				state = 0;
+			}
+			break;
+                        
+                        case 2:if(LDC_SPI0_val > adjustment[5])                                
+                        {
+                           state = 0;
+                        }
+                        break;
+                        
+                         case 3:if(LDC_SPI1_val > adjustment[5])                                 
+                        {
+                           state = 0;
+                        }
+                        break;
+		}
+	}
+	else
+	{
+		LDC_SPI1_val = LDC_SPI1_val + adjustment[0];
+			switch(state)
+		{
+			case 0:if (LDC_SPI0_val > adjustment[5] && LDC_SPI1_val > adjustment[5])
+			{
+				break;
+			}
+			else state++;
+			break;
+
+			case 1:if(LDC_SPI0_val <= adjustment[5])                          
+			{
+                                if(LDC_SPI0_pre > LDC_SPI0_val)
+                                {
+                                  state = 2;
+                                }
+			}
+			else if(LDC_SPI1_val <= adjustment[5])
+			{
+                                if(LDC_SPI0_val > 300 && LDC_SPI1_val < 10) dasi_flag = 2;          //向左打死flag;
+                                if(LDC_SPI0_val < 70 && LDC_SPI1_val < 10 && dasi_flag == 2) LDC_SPI0_val = adjustment[6];
+                                if(LDC_SPI1_pre > LDC_SPI1_val)
+                                {
+                                  state = 3;
+                                }
+			}
+			else
+			{
+				state = 0;
+			}
+			break;
+                        
+                        case 2:if(LDC_SPI0_val > adjustment[5])                               //向右打死
+                        {
+                           state = 0;
+                        }
+                        break;
+                        
+                         case 3:if(LDC_SPI1_val > adjustment[5])                              //向左打死
+                        {
+                           state = 0;
+                        }
+                        break;
+		}
+	}
+
+	LDC_result = LDC_SPI0_val - LDC_SPI1_val;
+
+	
+    first_Steering_Error = LDC_result;
+	p_Steering_Value = kp_Steering * first_Steering_Error;
+	d_Steering_Value = (first_Steering_Error - second_Steering_Error) * kd_Steering;
+
+	caculate_Steering_Value = p_Steering_Value + d_Steering_Value;
+	LDC_result = caculate_Steering_Value/20 - 5;
+
+	if(LDC_result >= STEERING_ANGLE_MAX)
+	{
+		LDC_result = STEERING_ANGLE_MAX;		
+	}
+	else if(LDC_result <= STEERING_ANGLE_MIN)
+	{
+		LDC_result = STEERING_ANGLE_MIN;
+	}
+        
+        FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result));
+        
+	second_Steering_Error = first_Steering_Error;
+	LDC_SPI0_pre = LDC_SPI0_val;
+	LDC_SPI1_pre = LDC_SPI1_val;
+        
+        printf("%d\r\n",(int)LDC_result);
+}

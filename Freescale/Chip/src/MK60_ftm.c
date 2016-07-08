@@ -383,7 +383,6 @@ void FTM_PWM_Duty(FTMn_e ftmn, FTM_CHn_e ch, uint32 duty)
 
     // ≈‰÷√FTMÕ®µ¿÷µ
     FTM_CnV_REG(FTMN[ftmn], ch) = cv;
-
 }
 
 /*!

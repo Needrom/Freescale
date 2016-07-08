@@ -2,10 +2,10 @@
 #include<oled.h>
 #include "MK60_gpio.h"
 
-#define LCD_SCL PTA15_OUT  //K60的管脚配置
-#define LCD_SDA	PTA16_OUT
-#define LCD_RST PTA13_OUT 
-#define LCD_DC  PTA12_OUT 
+#define LCD_SCL PTE24_OUT  //K60的管脚配置
+#define LCD_SDA	PTE25_OUT
+#define LCD_RST PTA12_OUT 
+#define LCD_DC  PTA13_OUT 
 
 
 #define XLevelL		0x00
@@ -727,10 +727,10 @@ void LCD_Init(void)
 // DDRA25 = 1;
 // DDRA26 = 1;
 // DDRA27 = 1;
-  gpio_init (PTA12,GPO , 1);//DC
-  gpio_init (PTA13,GPO , 1);//RST
-  gpio_init (PTA16,GPO , 1);//SDA
-  gpio_init (PTA15,GPO , 1);//SCL
+  gpio_init (PTA13,GPO , 1);//DC
+  gpio_init (PTA12,GPO , 1);//RST
+  gpio_init (PTE25,GPO , 1);//SDA
+  gpio_init (PTE24,GPO , 1);//SCL
   LCD_SCL=1;
   //LCD_CS=1;	//预制SLK和SS为高电平   	
   LCD_RST=0;

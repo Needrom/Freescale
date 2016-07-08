@@ -356,7 +356,16 @@
       <name>$PROJ_DIR$\..\..\App\Inc\MK60_it.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\..\App\PID.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\App\Inc\PORT_cfg.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\App\SpeedPID.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\App\SpeedPID.h</name>
     </file>
   </group>
   <group>
@@ -384,6 +393,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\Board\src\VCAN_RTC_count.C</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\App\Virtual_Oscilloscope.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\App\Virtual_Oscilloscope.h</name>
     </file>
   </group>
   <group>

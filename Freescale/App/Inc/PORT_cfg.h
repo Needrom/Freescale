@@ -65,8 +65,8 @@
 #define FTM1_QDPHA  PTA12       //PTA8、PTA12、PTB0
 #define FTM1_QDPHB  PTA13       //PTA9、PTA13、PTB1
 
-#define FTM2_QDPHA  PTA10       //PTA10、PTB18
-#define FTM2_QDPHB  PTA11       //PTA11、PTB19
+#define FTM2_QDPHA  PTB18       //PTA10、PTB18
+#define FTM2_QDPHB  PTB19       //PTA11、PTB19
 
 
 /**********************************  I2C   ***************************************/
