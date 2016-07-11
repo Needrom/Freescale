@@ -45,9 +45,7 @@ signed int Speed_Ctrl(float speed)
   signed int siSpeedPidOut;
   
   fSpeedErr = stSpeedPID.SetPoint - speed;         //速度误差
-  stSpeedPID.iErr += fSpeedErr;                    //速度误差累加
-  
-  //添加pid_speed.iErr的上下限
+  stSpeedPID.iErr += fSpeedErr;                    //速度误差累加 += -> =
   if((stSpeedPID.iErr > stSpeedPID.Integral_Max))
   {
     stSpeedPID.iErr = stSpeedPID.Integral_Max;
@@ -56,7 +54,6 @@ signed int Speed_Ctrl(float speed)
   {
     stSpeedPID.iErr = -stSpeedPID.Integral_Max;
   }
-  
   siSpeedPidOut = (int)(stSpeedPID.Proportion*fSpeedErr + stSpeedPID.iErr*stSpeedPID.Integral + stSpeedPID.Derivative*(fSpeedErr-stSpeedPID.LastErr));
   stSpeedPID.LastErr = fSpeedErr;                  //设定上一次误差
   
@@ -97,16 +94,16 @@ void SetSpeedPID(PID stPID)
   stSpeedPID = stPID;
 }
 
-void SetSpeedSetPoint(unsigned int uiSetPoint)
-{
-  stSpeedPID.SetPoint = (double)uiSetPoint;
-}
 
 double GetSpeedSetPoint(void)
 {
   return stSpeedPID.SetPoint;
 }
 
+void SetSpeed_speed(double point_value)
+{
+  stSpeedPID.SetPoint = point_value;
+}
 
 void SetSpeedIMax(unsigned int uiMax)
 {

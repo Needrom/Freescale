@@ -54,14 +54,14 @@ float  LDC_result;
 float first_Steering_Error;
 float p_Steering_Value;
 float expectation_Steering_Value = 0;
-float kp_Steering = 0.4;   //0.25 0.8
+float kp_Steering = 0.15;   //0.25 0.8
 float d_flag;
 float d_Steering_Value;
 float second_Steering_Error;
 float kd_Steering_Value;
 float caculate_Steering_Value;
 float middle_Steering_Value;
-float kd_Steering = 0.01;
+float kd_Steering = 0.27;
 float left_Lost;
 unsigned char state;
 #define left_add 50
@@ -81,11 +81,15 @@ unsigned int LDC_SPI1_COUNT = 0;
 #define LDC_MAX 5000
 
 //Motor_pid初始值
-float p = 0.9,i = 0.3,d = 0.4, imax = 0.1;
-float Aimspeed = 1000;
+float p = 0.8,i =0.1,d = 1, imax =  1;
+float AimSpeed = 1100;
 float mid = 0;
+float next = 0, iErr = 0, LastErr = 0, PreErr = 0, tiffer = 0;
 
 float Result_list[5] = { 0 };
+float result_abs = 0;
+float result_pre = 0;
+
 
 uint32 Motor_result = 0;
 
@@ -117,10 +121,10 @@ uint32 Motor_result = 0;
 #define STEERING_ANGLE_MAX 22
 #define STEERING_ANGLE_MIN -26
 #define STEERING_MIN_FLAG 100
-#define ANGLE_MIN_MIN -7
-#define ANGLE_MAX_MIN 7
-#define ANGLE_MIN_MAX -16
-#define ANGLE_MAX_MAX 15
+#define ANGLE_LEFT_MIN -7
+#define ANGLE_RIGHT_MIN 7
+#define ANGLE_LEFT_MAX -20
+#define ANGLE_RIGHT_MAX 12
 //MOTOR
 #define MOTOR_FTM_N FTM0
 #define MOTOR_FTM_CHN FTM_CH2
@@ -151,36 +155,37 @@ void LDC_get();
 void Virtual_Osc(void);
 void Result_collect();
 void key_choice();
+float Abs(float a);
 
-/*void Motor_PID(void)
+void Motor_PID(void)
 {
   next = (uint32)guad_val;
   //if(iErr - LastErr <= -1 || iErr - PreErr >= 1) return next;
   iErr = AimSpeed - next; 
-  tiffer = p * iErr - i * LastErr + d * PreErr;
+  LastErr = iErr - LastErr;
+  PreErr = iErr - 2 * LastErr + PreErr;
+  tiffer = p * iErr + i * LastErr + d * PreErr;
+  tiffer = tiffer * 60;
+  if(tiffer >= 60000) tiffer = 60000;
+  if(tiffer >= AimSpeed) tiffer = AimSpeed;
   PreErr = LastErr;
   LastErr = iErr;
-  now_pwm = next*120;
-  if(now_pwm >= 60000) now_pwm = 60000;
-  if(tiffer >= AimSpeed) tiffer = AimSpeed;
-  printf("encode=%d\r\n",(int)guad_val);
+  //printf("encode=%d\r\n",(int)guad_val);
   //FTM_PWM_Duty(FTM0,FTM_CH2,tiffer*120);
   //FTM_PWM_Duty(FTM0,FTM_CH2,60000);
   //systick_delay_ms(5000);
-  FTM_PWM_Duty(FTM0,FTM_CH2,70000);
+  FTM_PWM_Duty(FTM0,FTM_CH2,tiffer);
   //systick_delay_ms(1000);
 //  FTM_PWM_Duty(FTM0,FTM_CH2,80000);
 //  systick_delay_ms(1000);
-  printf("tiffer: %d\n\r",(int)tiffer);
-}*/
+  //printf("tiffer: %d\n\r",(int)tiffer);
+}
 
 void Motor_ctl()
 {
-  
-  mid = Speed_Ctrl(guad_val);
-  //Motor_result = (uint32)Speed_Smooth_Ctrl((signed int)(mid));
-  if(Motor_result >= 65000)Motor_result = 65000;
-  FTM_PWM_Duty(FTM0,FTM_CH2,70000);//(uint32)Speed_Smooth_Ctrl((signed int)
+  Motor_result = (uint32)Speed_Smooth_Ctrl((signed int)(mid));
+  if(Motor_result >= 1600)Motor_result = 1600;
+  FTM_PWM_Duty(FTM0,FTM_CH2,Motor_result * 60);//(uint32)Speed_Smooth_Ctrl((signed int)
 }
 
 void Motor_stop()
@@ -211,120 +216,6 @@ void PIT_init()
 #endif
 }
 
-//void Steering_Change()
-//{
-//      
-//  if(flag) LDC_SPI1_val += adjustment[0];
-//  else LDC_SPI0_val += adjustment[0];
-//
-//	switch (state)
-//	{
-//					case 0:
-//						if (LDC_SPI0_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						LDC_SPI0_COUNT = 0;
-//                                                kp_Steering = 0.7;
-//					}
-//						else
-//					{
-//						LDC_SPI0_COUNT++;
-//						state++;
-//                                                kp_Steering = 0.8;
-//					}
-//						if(LDC_SPI1_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						LDC_SPI1_COUNT = 0;
-//                                                kp_Steering = 0.7;
-//					}
-//						else
-//					{
-//						LDC_SPI1_COUNT++;
-//						state++;
-//                                                kp_Steering = 0.8;
-//					}
-//						break;
-//
-//                                                
-//                                        
-//
-//					case 1:
-//					
-//					if (LDC_SPI0_val < (adjustment[5] + STEERING_MIN_FLAG) && LDC_SPI0_COUNT > LDC_SPI1_COUNT) state = 2;
-//					else if (LDC_SPI1_val < (adjustment[5] + STEERING_MIN_FLAG) && LDC_SPI1_COUNT > LDC_SPI0_COUNT)state = 3;
-//					else if(LDC_SPI0_val > (adjustment[5] + STEERING_MIN_FLAG) && LDC_SPI1_val < (adjustment[5] + STEERING_MIN_FLAG)) state = 0;
-//					
-//					break;
-//		
-//					case 2:if (LDC_SPI0_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						state = 0;
-//						break;
-//					}
-//						   if (LDC_SPI0_val < (adjustment[5] + STEERING_MIN_FLAG) && LDC_SPI1_val < (adjustment[5] + STEERING_MIN_FLAG)) state = 4;
-//
-//				   LDC_SPI1_val = LDC_MAX;
-//				   break;
-//
-//					case 3:if (LDC_SPI1_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						state = 0;
-//						break;
-//					}
-//						   if (LDC_SPI0_val < (adjustment[5] + STEERING_MIN_FLAG) && LDC_SPI1_val < (adjustment[5] + STEERING_MIN_FLAG)) state = 5;
-//
-//						   LDC_SPI0_val = LDC_MAX;
-//						   break;
-//					
-//					case 4:if (LDC_SPI0_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						state = 0;
-//						break;
-//					}
-//						   
-//						   LDC_SPI1_val = LDC_MAX;
-//						   break;
-//
-//					case 5:if (LDC_SPI1_val > (adjustment[5] + STEERING_MIN_FLAG))
-//					{
-//						state = 0;
-//						break;
-//					}
-//						   LDC_SPI0_val = LDC_MAX;
-//						   break;
-//	}
-//	
-//	
-//	LDC_result = LDC_SPI0_val - LDC_SPI1_val;
-//
-//
-//	first_Steering_Error = LDC_result;
-//	p_Steering_Value = kp_Steering * first_Steering_Error;
-//	d_Steering_Value = (first_Steering_Error - second_Steering_Error) * kd_Steering;
-//
-//	caculate_Steering_Value = p_Steering_Value + d_Steering_Value;
-//	LDC_result = caculate_Steering_Value / 30 ;
-//
-//	if (LDC_result >= STEERING_ANGLE_MAX)
-//	{
-//		LDC_result = STEERING_ANGLE_MAX;
-//	}
-//	else if (LDC_result <= STEERING_ANGLE_MIN)
-//	{
-//		LDC_result = STEERING_ANGLE_MIN;
-//	}
-//        
-//        FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result));
-//        
-//	second_Steering_Error = first_Steering_Error;
-//
-//	LDC_SPI0_pre = LDC_SPI0_val;
-//	LDC_SPI1_pre = LDC_SPI1_val;
-//        
-//        printf("state:%d\r\n",state);
-//        printf("angle:%d",(int)LDC_result);
-//}
-
-
 void Steering_Change()
 {
 	if(flag) LDC_SPI1_val += adjustment[0];
@@ -340,67 +231,83 @@ void Steering_Change()
 	d_Steering_Value = (first_Steering_Error - second_Steering_Error) * kd_Steering;
 	caculate_Steering_Value = p_Steering_Value + d_Steering_Value;
 	
-        LDC_result = caculate_Steering_Value / divisor_end ;
+        LDC_result = caculate_Steering_Value / divisor_end;
 	switch (state)
 	{
                             case 0:
-                                    if (LDC_result > ANGLE_MIN_MIN && LDC_result < ANGLE_MAX_MIN)
+                            if (LDC_result > ANGLE_LEFT_MIN && LDC_result < ANGLE_RIGHT_MIN)
                             {
                                     //kp_Steering = 0.85;
-                                    FTM_PWM_Duty(FTM0,FTM_CH2,70000);
-                                      
+                                    //SetSpeed_speed(1000);
                             }
                                     else
                             {
                                     state++;
                                     //kp_Steering = 0.85;
-                                    FTM_PWM_Duty(FTM0,FTM_CH2,55000);
+                                    //SetSpeed_speed(500);
                             }
                                     break;
 
                             case 1:
-                            if (LDC_result > ANGLE_MIN_MIN && LDC_result < ANGLE_MAX_MIN) state = 0;
-                            else if(LDC_result < ANGLE_MIN_MAX) state = 2;
-                            else if(LDC_result > ANGLE_MAX_MAX) state = 3;
-                             FTM_PWM_Duty(FTM0,FTM_CH2,55000);
+                            if (LDC_result > ANGLE_LEFT_MIN && LDC_result < ANGLE_RIGHT_MIN) state = 0;
+                            else if(LDC_result > ANGLE_RIGHT_MAX) state = 0;
+                            else if(LDC_result < ANGLE_LEFT_MAX) state = 0;
+                            //SetSpeed_speed(500);
                             break;
                             case 2:
-                              if(LDC_result > ANGLE_MIN_MAX) state = 0;
-                              else LDC_result = STEERING_ANGLE_MIN;
-                               FTM_PWM_Duty(FTM0,FTM_CH2,55000);
+                              if(LDC_result > ANGLE_LEFT_MAX)
+                              {
+                                state = 0;
+                              }
+                              else 
+                              {
+                                LDC_result = STEERING_ANGLE_MIN;
+//                                if(LDC_SPI0_val <= adjustment[8] && LDC_SPI1_val <= adjustment[7])
+//                                  LDC_result = Result_list[0];
+                              }
+                              //SetSpeed_speed(500);
                               break;
                               
                             case 3:
-                              if(LDC_result < ANGLE_MAX_MAX) state = 0;
-                              else LDC_result = STEERING_ANGLE_MAX;
-                               FTM_PWM_Duty(FTM0,FTM_CH2,55000);
+                              if(LDC_result > ANGLE_RIGHT_MAX) 
+                              { 
+                                state = 0;
+                              }
+                              else 
+                              {
+                                LDC_result = STEERING_ANGLE_MAX;
+//                                if(LDC_SPI0_val <= adjustment[8] && LDC_SPI1_val <= adjustment[7])
+//                                  LDC_result = Result_list[0];
+                              } 
+                              //SetSpeed_speed(500);
                               break;
 	}
-        
-        	
-        
-        if (LDC_result >= STEERING_ANGLE_MAX)
-	{
-		LDC_result = STEERING_ANGLE_MAX;
-	}
-	else if (LDC_result <= STEERING_ANGLE_MIN)
-	{
-		LDC_result = STEERING_ANGLE_MIN;
-	}
-        
-	FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result));
+	FTM_PWM_Duty(FTM1,FTM_CH0,angle_to_period(LDC_result+1));
 	LCD_BL(0,0,(uint16)state);
-	LCD_BL(30,0,(uint16)LDC_result);
-        Result_collect();
+	LCD_BL(30,0,(uint16)Abs(LDC_result));
+        result_pre = LDC_result;
+}
+
+float Abs(float a)
+{
+  if(a < 0) return -a;
+  else return a;
 }
 
 void Result_collect()
 {
         Result_list[4] = Result_list[3];
+        result_abs += Abs(Result_list[4] - Result_list[3]);
         Result_list[3] = Result_list[2];
+        result_abs += Abs(Result_list[3] - Result_list[2]);
         Result_list[2] = Result_list[1];
+        result_abs += Abs(Result_list[2] - Result_list[1]);
         Result_list[1] = Result_list[0];
+        result_abs += Abs(Result_list[1] - Result_list[0]);
         Result_list[0] = LDC_result;
+        result_abs = result_abs/5;
+        LCD_BL(70,0,(uint16)result_abs*10);
+        LCD_BL(0,2,(uint16)Result_list[1]);
 }
 
 
@@ -412,7 +319,7 @@ void Device_init()
         gpio_init(PTD3,GPO,1);
         gpio_init(PTD4,GPO,1);						//每进入一次初始化PTD4灯灭，初始化完成亮起
         gpio_init(PTC5,GPO,1);
-        gpio_init(PTC4,GPI,0);
+        gpio_init(PTC4,GPI,0);                                          //干簧管
 
 	FTM_PWM_init(FTM1,FTM_CH0,50,0);				//舵机初始化，从百分之十占空比到百分之七十占空比测试
 	
@@ -434,6 +341,8 @@ float angle_to_period(float deg)
   return (100000*pulse_width/200000);
 }
 
+
+
 void TEST_mode()
 {  
   Stop_flag = gpio_get(PTC4);
@@ -442,137 +351,159 @@ void TEST_mode()
   printf("%d\r\n",(int)Stop_flag);
 }
 
+void LDC_EVM_TEST()
+{
+   evm_test(SPI0);
+   evm_test(SPI1);
+}
+
 void main(void)
 {
 	int i1=0;
 	
 	Device_init();
         disable_irq(PIT0_IRQn);
-        systick_delay_ms(100);
+        systick_delay_ms(50);
         FLOAT_LDC_init(SPI1);
-        systick_delay_ms(100);
+        systick_delay_ms(50);
         FLOAT_LDC_init(SPI0);
-        systick_delay_ms(4000);
+        systick_delay_ms(1000);
         uart_init(UART3,115200);
         key_init(0);
         key_init(1);
-        Speed_Ctl_Init(Aimspeed, p, i, d, imax);
-#if LDC_EVM_TEST_EN
-      evm_test(SPI0);
-      evm_test(SPI1); 
-      
-//     Set_reg(SPI1);
+        key_init(2);
+        Speed_Ctl_Init(AimSpeed, p, i, d, imax);  
      
-//     Reset_buff();
-     
+      while(1)
+      {
+        LCD_P6x8Str(0,2,"Rmax Lmin");
+        printf("Rmax Rmin\r\n");
+        systick_delay_ms(1500);
+        i1=50;
+        
+        while(i1--)
+       {
+           adjustment[2]=(float)filter(SPI1)/10;//右max
+           LCD_BL(55,2,(uint16)adjustment[2]);
+           printf("%d\r\n",adjustment[2]);
+           adjustment[9] += adjustment[2];
+       }
+        
+       i1=50;
+       while(i1--)
+       {
+          adjustment[1]=(float)filter(SPI0)/10;//左min
+          LCD_BL(90,2,(uint16)adjustment[1]);
+          printf("%d\r\n",adjustment[1]);
+       }
        
-     
-//     Set_reg(SPI0);
-#endif     
-	
-     
-     
-      
-      LCD_P6x8Str(0,2,"Rmax Lmin");
-      printf("Rmax Rmin\r\n");
-      systick_delay_ms(3000);
-      i1=100;
-      while(i1--)
-     {
-         adjustment[2]=(float)filter(SPI1)/10;//右max
-         LCD_BL(55,2,(uint16)adjustment[2]);
-         printf("%d\r\n",adjustment[2]);
-         adjustment[9] += adjustment[2];
-     }
-      i1=100;
-      while(i1--)
-     {
-        adjustment[1]=(float)filter(SPI0)/10;//左min
-        LCD_BL(90,2,(uint16)adjustment[1]);
-        printf("%d\r\n",adjustment[1]);
-     }
-     LCD_BL(55,2,(uint16)adjustment[1]);
-     LCD_BL(90,2,(uint16)adjustment[2]);
-  
+       LCD_BL(55,2,(uint16)adjustment[1]);
+       LCD_BL(90,2,(uint16)adjustment[2]);
+    
 
-  
-      LCD_P6x8Str(0,4,"Lmax Rmin");
-      printf("Lmax Rmin\r\n");
-      systick_delay_ms(3000);
-      i1=100;
-      while(i1--)
-     {
-      adjustment[3]=(float)filter(SPI1)/10;//右min
-      LCD_BL(55,4,(uint16)adjustment[3]);
-      printf("%d\r\n",adjustment[3]);
-     }
-      i1=100;
-      while(i1--)
-     {
-      adjustment[4]=(float)filter(SPI0)/10;//左max
-      LCD_BL(90,4,(uint16)adjustment[4]);
-      printf("%d\r\n",adjustment[4]);
-     }
-     
-     LCD_BL(55,4,(uint16)adjustment[4]);
-     LCD_BL(90,4,(uint16)adjustment[3]);
-     
-     if(adjustment[1]<=adjustment[3])
-       adjustment[5]=adjustment[1];//次小值
-     else
-       adjustment[5]=adjustment[3];//次小值
-     
-     if(adjustment[2]>=adjustment[4])
-       adjustment[6]=adjustment[2];//次大值
-     else
-       adjustment[6]=adjustment[4];//次大值
-     
-     divisor = (adjustment[2] - adjustment[3])/48;
-     divisor2 = (adjustment[4] - adjustment[1])/48;
-     for(int i=0;i<10;i++)
-     {
-       printf("%d\r\n",adjustment[i]);
-     }
-     systick_delay_ms(3000);
-     
-        enable_irq(PIT0_IRQn);
-        LCD_Fill(0x00);
+    
+       LCD_P6x8Str(0,4,"Lmax Rmin");
+       printf("Lmax Rmin\r\n");
+       systick_delay_ms(1500);
+       i1=50;
+       while(i1--)
+       {
+       adjustment[3]=(float)filter(SPI1)/10;//右min
+       LCD_BL(55,4,(uint16)adjustment[3]);
+       printf("%d\r\n",adjustment[3]);
+       }
         
-        
-        i1 = 100;
-     while(i1--)
-     {
-      adjustment[7]=(float)filter(SPI0)/10;//右
-      adjustment[8]=(float)filter(SPI1)/10;//左
-     }
-	  if(adjustment[7]>=adjustment[8])
-     { flag=1;
-     adjustment[0]=adjustment[7]-adjustment[8];
-     }
-     else
-     {
-       flag=0;
-     adjustment[0]=adjustment[8]-adjustment[7]; 
-     }
-        
-	while(1)
-	{ 
-                //Virtual_Osc();
-                 LCD_BL(50,2,(uint16)(kd_Steering*1000));
-                LDC_get();
-                TEST_display();
-                Steering_Change();
-                Quad_count();
-                key_choice();
-               // Motor_ctl();
-                
-                if(PIT_1sFlag == 1)
-		{
-                      gpio_turn(PTD4);
-                      PIT_1sFlag = 0;
-		}
-                
-	}
+       i1=50;
+       while(i1--)
+       {
+        adjustment[4]=(float)filter(SPI0)/10;//左max
+        LCD_BL(90,4,(uint16)adjustment[4]);
+        printf("%d\r\n",adjustment[4]);
+       }
+       
+       LCD_BL(55,4,(uint16)adjustment[4]);
+       LCD_BL(90,4,(uint16)adjustment[3]);
+       
+       if(adjustment[1]<=adjustment[3])
+         adjustment[5]=adjustment[1];//次小值
+       else
+         adjustment[5]=adjustment[3];//次小值
+       
+       if(adjustment[2]>=adjustment[4])
+         adjustment[6]=adjustment[2];//次大值
+       else
+         adjustment[6]=adjustment[4];//次大值
+       
+       divisor = (adjustment[2] - adjustment[3])/68;                              //48
+       divisor2 = (adjustment[4] - adjustment[1])/48;                             //48
+       
+//       for(int i=0;i<10;i++)
+//       {
+//         printf("%d\r\n",adjustment[i]);
+//       }
+//       systick_delay_ms(1000);
+       
+       
+          
+       LCD_P6x8Str(0,6,"Mid value");
+        i1 = 50;
+       systick_delay_ms(1500);
+       while(i1--)
+       {
+        adjustment[7]=(float)filter(SPI0)/10;//右
+        adjustment[8]=(float)filter(SPI1)/10;//左
+        LCD_BL(55,6,(uint16)adjustment[7]);
+        LCD_BL(90,6,(uint16)adjustment[8]);
+       }
+            if(adjustment[7]>=adjustment[8])
+       { flag=1;
+       adjustment[0]=adjustment[7]-adjustment[8];
+       }
+       else
+       {
+         flag=0;
+       adjustment[0]=adjustment[8]-adjustment[7]; 
+       }
+       
+       LCD_Fill(0x00);
+       
+       enable_irq(PIT0_IRQn);
+          while(1)
+          { 
+                  if(PIT_1sFlag == 1)
+                  {
+                        gpio_turn(PTD4);
+                        PIT_1sFlag = 0;
+                  }
+                  if(key_check(2) == 0)
+                  {
+                    LCD_Fill(0x00);
+                    Motor_stop();
+                    break;
+                  }
+                  else
+                  {
+                    Virtual_Osc();
+                    if(kd_Steering < 0) LCD_P6x8Str(67,2,"-");
+                    else LCD_P6x8Str(67,2,"  ");
+                    LCD_BL(70,2,(uint16)(Abs(kd_Steering)*100));
+                    LDC_get();
+                    TEST_display();
+                    Steering_Change();
+                    Quad_count();
+                    key_choice();
+                  
+                //    Motor_PID();
+//                    if(gpio_get(PTC4) == 0)
+//                    {
+//                      while(1)
+//                      {
+//                        Motor_stop();
+//                      }
+//                    }
+                  }
+          }
+      }
 }
 
 void Quad_count()
@@ -615,6 +546,7 @@ void TEST_display()
                 {
                   printf("%c1",orgVal[i]);
                   LCD_BL(0+(i*10),9,(uint16)orgVal[i]);
+                  Motor_stop();
                 }
                 systick_delay_ms(150);
              }
@@ -655,7 +587,7 @@ void Virtual_Osc(void)
   OutData[0] = (float)guad_val;
   OutData[1] = LDC_SPI0_val;
   OutData[2] = LDC_SPI1_val;
-  OutData[3] = (float)Motor_result;
+  OutData[3] = (float)mid;
   OutPut_Data();
 }
 
@@ -686,9 +618,12 @@ void pit0_isr()
 		PIT_5msFlag = 1;
 		PIT_steeringFlag = 1;
 		PIT_motorFlag = 1;
+                Motor_ctl();
 	}
 	if(++PIT_10msCount >= PIT_10MS_CONSTON)
 	{
+                //Motor_ctl();
+                //Motor_PID();
 		PIT_10msCount = 0;
 		PIT_10msFlag = 1;
 	}
@@ -700,8 +635,10 @@ void pit0_isr()
 	}
 	if(++PIT_50msCount >= PIT_50MS_CONSTON)
 	{
+                mid = Speed_Ctrl((float)guad_val);
 		PIT_50msCount = 0;
 		PIT_50msFlag = 1;
+                Result_collect();
 	}
 	if(++PIT_1sCount >= PIT_1S_CONSTON)
 	{

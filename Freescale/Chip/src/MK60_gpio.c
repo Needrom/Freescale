@@ -36,7 +36,7 @@ GPIO_MemMapPtr GPIOX[PTX_MAX] = {PTA_BASE_PTR, PTB_BASE_PTR, PTC_BASE_PTR, PTD_B
  *  @since      v5.0
  *  Sample usage:       gpio_init (PTA8, GPI,0);    //初始化 PTA8 管脚为输入
  */
-void gpio_init (PTXn_e ptxn, GPIO_CFG cfg, uint8 data)
+void gpio_init(PTXn_e ptxn, GPIO_CFG cfg, uint8 data)
 {
     //复用管脚为GPIO功能
     port_init( ptxn, ALT1);

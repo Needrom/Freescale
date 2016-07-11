@@ -27,7 +27,7 @@
 /*
  * 定义 KEY 编号对应的管脚
  */
-PTXn_e KEY_PTxn[KEY_MAX] = {PTB16,PTB17};
+PTXn_e KEY_PTxn[KEY_MAX] = {PTB16,PTB17,PTB10};
 
 
 /*!
@@ -41,7 +41,7 @@ void    key_init(KEY_e key)
     if(key < KEY_MAX)
     {
         gpio_init(KEY_PTxn[key], GPI, 0);
-//        port_init_NoALT(KEY_PTxn[key], PULLUP);         //保持复用不变，仅仅改变配置选项
+        port_init_NoALT(KEY_PTxn[key], PULLUP);         //保持复用不变，仅仅改变配置选项
     }
     else
     {
@@ -51,7 +51,7 @@ void    key_init(KEY_e key)
         while(key--)
         {
             gpio_init(KEY_PTxn[key], GPI, 0);
-//            port_init_NoALT(KEY_PTxn[key], PULLUP);         //保持复用不变，仅仅改变配置选项
+            port_init_NoALT(KEY_PTxn[key], PULLUP);         //保持复用不变，仅仅改变配置选项
         }
 
     }
