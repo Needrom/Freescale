@@ -82,7 +82,7 @@ unsigned int LDC_SPI1_COUNT = 0;
 
 //Motor_pid³õÊ¼Öµ
 float p = 0.8,i =0.1,d = 1, imax =  1;
-float AimSpeed = 1100;
+float AimSpeed = 1200;
 float mid = 0;
 float next = 0, iErr = 0, LastErr = 0, PreErr = 0, tiffer = 0;
 
@@ -245,6 +245,7 @@ void Steering_Change()
                                     state++;
                                     //kp_Steering = 0.85;
                                     //SetSpeed_speed(500);
+                                    FTM_PWM_Duty(FTM0,FTM_CH2,50000);
                             }
                                     break;
 
@@ -252,6 +253,7 @@ void Steering_Change()
                             if (LDC_result > ANGLE_LEFT_MIN && LDC_result < ANGLE_RIGHT_MIN) state = 0;
                             else if(LDC_result > ANGLE_RIGHT_MAX) state = 0;
                             else if(LDC_result < ANGLE_LEFT_MAX) state = 0;
+                            FTM_PWM_Duty(FTM0,FTM_CH2,50000);
                             //SetSpeed_speed(500);
                             break;
                             case 2:
@@ -483,14 +485,34 @@ void main(void)
                   }
                   else
                   {
-                    Virtual_Osc();
+                    if(PIT_5msFlag == 1)
+                    {
+                      LDC_get();
+                      PIT_5msFlag = 0;
+                    }
+                    if(PIT_10msFlag == 1)
+                    {
+                      
+                      PIT_10msFlag = 0;
+                    }
+                    if(PIT_20msFlag == 1)
+                    {
+                      Steering_Change();
+                      PIT_20msFlag = 0;
+                    }
+                    if(PIT_50msFlag == 1)
+                    {
+                      Quad_count();
+                      PIT_50msFlag = 0;
+                    }
+                    Motor_ctl();
+                    //Virtual_Osc();
                     if(kd_Steering < 0) LCD_P6x8Str(67,2,"-");
                     else LCD_P6x8Str(67,2,"  ");
                     LCD_BL(70,2,(uint16)(Abs(kd_Steering)*100));
-                    LDC_get();
+                    
                     TEST_display();
-                    Steering_Change();
-                    Quad_count();
+                    
                     key_choice();
                   
                 //    Motor_PID();
@@ -618,7 +640,6 @@ void pit0_isr()
 		PIT_5msFlag = 1;
 		PIT_steeringFlag = 1;
 		PIT_motorFlag = 1;
-                Motor_ctl();
 	}
 	if(++PIT_10msCount >= PIT_10MS_CONSTON)
 	{
