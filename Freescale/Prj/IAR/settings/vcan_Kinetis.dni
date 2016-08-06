@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=1153124759
+Checksum=-1813466086
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -48,9 +48,10 @@ mode=0
 [Breakpoints2]
 Count=0
 [Aliases]
-A0=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c"
-A1=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\startup_MK60DZ10.s" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\startup_MK60DZ10.s"
-A2=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\system_MK60DZ10.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\system_MK60DZ10.c"
-A3=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\MK60_uart.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\MK60_uart.c"
-Count=4
+A0=_ "C:\Users\国宇\Desktop\浮点科技电轨组金属传感器模块K60驱动代码_新\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\MK60_PIT.c" ""
+A1=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Board\src\LDC1000.c"
+A2=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\startup_MK60DZ10.s" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\startup_MK60DZ10.s"
+A3=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\IAR\system_MK60DZ10.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\IAR\system_MK60DZ10.c"
+A4=_ "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块驱动代码\浮点科技电轨组金属传感器模块驱动代码\Chip\src\MK60_uart.c" "K:\documents2\创业\项目集合\飞思卡尔竞赛相关\产品资料\电轨组金属传感器\浮点科技电轨组金属传感器模块K60驱动代码\浮点科技电轨组金属传感器模块K60驱动代码\Chip\src\MK60_uart.c"
+Count=5
 SuppressDialog=1

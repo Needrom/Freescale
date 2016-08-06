@@ -5,11 +5,11 @@
 #include "MK60_spi.h"
 #include "MK60_uart.h"
 
-#define TEST_RP_MSB_MIN 0x07            //0A   //07
-#define TEST_RP_MSB_MAX 0x08            //12 //08
+#define TEST_RP_MSB_MIN 0x36            //0A   //07
+#define TEST_RP_MSB_MAX 0x38            //12 //08
 #define TEST_FC_MAX 0x0D5D
 #define TEST_FC_MIN 0x0D39
-#define TEST_RPMIN_MIN 0x34             //3A
+#define TEST_RPMIN_MIN 0x20             //3A  //34
 #define TEST_RPMIN_MAX 0x3F             //3D
 #define TEST_RPMAX_MIN 0x00             //10
 #define TEST_RPMAX_MAX 0x1F             //13
@@ -22,8 +22,8 @@ LDC_ParameterPtr LDC_buff[50];
 
 uint8 orgVal[12]={0}; 
 
-uint8 RPMAX =0x07;                      //TI 14 
-uint8 RPMIN =0x2F;                      //TI 3B
+uint8 RPMAX =0x07;                      //TI 14    yoiu 1136  
+uint8 RPMIN =0x30;                      //TI 3B
 uint8 rpi_max=10;
 uint8 proximtyData[3]={0};
 unsigned long proximtyDataTEMP=0,proximtyDataMAX,proximtyDataMIN,proximtyDataSUM,proximtyDataAVE,proximtyDataAVE_LAS;

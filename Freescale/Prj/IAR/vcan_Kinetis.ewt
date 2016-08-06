@@ -356,6 +356,9 @@
       <name>$PROJ_DIR$\..\..\App\Inc\MK60_it.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\..\App\motor_speed_pid.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\App\PID.h</name>
     </file>
     <file>
